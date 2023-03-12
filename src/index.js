@@ -15,6 +15,7 @@ app.use(express.static(publicDirectoryPath))
  io.on('connection',(socket)=>{
   console.log('New Connection setup')
 
+   
   socket.on('join',({username , room} , callback)=>{
      const {error,user} = addingUser({id : socket.id , username , room}) 
      if(error){
@@ -22,6 +23,7 @@ app.use(express.static(publicDirectoryPath))
      }
      socket.join(user.room)
      
+    
      socket.emit('message' , generateMessage('Admin','Welcome!!'))
      socket.broadcast.to(user.room).emit('message' , generateMessage('Admin' , `${user.username} has joined!!`))
      io.to(user.room).emit('roomData' , {
@@ -31,17 +33,20 @@ app.use(express.static(publicDirectoryPath))
      callback()
   })
 
+   
      socket.on('sendMessage',(message , callback)=>{
      const user = getUser(socket.id)
      io.to(user.room).emit('message' , generateMessage(user.username,message))
      callback()
   })
 
+   
   socket.on('sendLocation' , (data , callback)=>{
      const user = getUser(socket.id)
      io.to(user.room).emit('locationMessage' , generateLocationMessage(user.username,'https://google.com/maps?q=' + data.latitude + ',' + data.longitude))
       callback()
   })
+   
    
   socket.on('disconnect',()=>{
     const user = removeUser(socket.id)
